@@ -1,0 +1,36 @@
+class Solution {
+public:
+    bool topological_sort(vector<int>& val , vector<int>& degree , vector<vector<int>>& adj){
+        queue<int> q ;
+        int count{0} ;
+        for(int i = 0 ; i < degree.size() ; i++) if( degree[i] == 0 ) q.push(i) ;
+        while( !q.empty() ){
+            val[q.front()] = count++ ;
+            for(int i = 0 ; i < adj[q.front()].size() ; i++){
+                if( --degree[adj[q.front()][i]] == 0 ) q.push(adj[q.front()][i]) ;
+            }
+            q.pop() ;
+        }
+        return count == degree.size() ;
+    }
+    vector<vector<int>> buildMatrix(int k, vector<vector<int>>& rowConditions, vector<vector<int>>& colConditions) {
+        vector<int> col(k , 0) , row(k ,0) , col_degree(k ,0) , row_degree(k ,0) ;
+        vector<vector<int>> row_adj(k) , col_adj(k) , out(k , vector<int>(k ,0)) ;
+        bool ret = true ;
+        for(int i = 0 ; i < rowConditions.size() ; i++){
+            row_adj[rowConditions[i][0] -1].push_back(rowConditions[i][1] -1) ;
+            row_degree[rowConditions[i][1] -1]++ ;
+        }
+        for(int i = 0 ; i < colConditions.size() ; i++){
+            col_adj[colConditions[i][0] -1].push_back(colConditions[i][1] -1) ;
+            col_degree[colConditions[i][1] -1]++ ;
+        }
+        ret &=topological_sort(row ,row_degree ,row_adj) ; 
+        ret &=topological_sort(col ,col_degree ,col_adj) ;
+        if( !ret ) return vector<vector<int>>() ;
+        for( int i = 0 ; i < k ; i++){
+            out[row[i]][col[i]] = (i+1) ;
+        }
+        return out ;
+    }
+};
